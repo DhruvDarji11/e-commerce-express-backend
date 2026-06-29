@@ -47,3 +47,20 @@ export const loginUser = async (email: string, password: string) => {
     refreshToken,
   };
 };
+
+export const refreshAccessToken = async (refreshToken: string) => {
+  const user = await User.findOne({
+    refreshToken,
+  });
+
+  if (!user) {
+    throw new ApiErrors(401, "Invalid refresh token");
+  }
+
+  const accessToken = await generateAccessToken(user._id.toString(), user.role);
+  return accessToken;
+};
+
+export const logoutUser = async (userId: string) => {
+  await User.findByIdAndUpdate(userId, { refreshToken: null });
+};
