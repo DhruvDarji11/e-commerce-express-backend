@@ -30,7 +30,14 @@ export const createProductController = async (req: Request, res: Response) => {
 
 export const getProductsController = async (req: Request, res: Response) => {
   try {
-    const products = await getProducts();
+    const { page, limit, sort } = req.query;
+    // By default it will return newly created products first (descending)
+    const sortDefault = sort ? sort : { createdAt: -1 };
+    const products = await getProducts(
+      Number(page) || 1,
+      Number(limit) || 10,
+      sortDefault
+    );
     res
       .status(200)
       .json(new ApiResponse(true, "Products fetched successfully", products));

@@ -1,15 +1,19 @@
 import { Product } from "../models/product.model";
 import { IProduct } from "../types/product.types";
 import { ApiErrors } from "../utils/ApiErrors";
+import { createSlug } from "../utils/slug";
 
 export const createProduct = async (payload: IProduct) => {
+  payload.slug = createSlug(payload.name);
   const product = await Product.create(payload);
   return product;
 };
 
-export const getProducts = async () => {
-  const products = await Product.find();
-  return products;
+export const getProducts = async (page: number, limit: number, sort: any) => {
+  const skip = (page - 1) * limit;
+  const products = await Product.find().sort(sort).skip(skip).limit(limit);
+  const total = await Product.countDocuments();
+  return { products, pagination: { page, limit, total } };
 };
 export const getProductById = async (id: string) => {
   const product = await Product.findById(id);
